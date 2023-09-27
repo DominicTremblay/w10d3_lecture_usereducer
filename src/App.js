@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useReducer } from 'react';
+import heroesReducer, {
+  CREATE_SUPERHERO,
+  UPDATE_SUPERHERO,
+  DELETE_SUPERHERO,
+} from './reducers/heroesReducer';
 import './App.css';
 
 function App() {
-  const [superheroes, setSuperheroes] = useState([
-    {
-      id: 370,
-      name: 'Harley Quinn',
-      occupation: 'Psychiatrist',
-      base: 'Gotham City',
-    },
-  ]);
+  const [state, dispatch] = useReducer(heroesReducer, {
+    superheroes: [
+      {
+        id: 370,
+        name: 'Harley Quinn',
+        occupation: 'Psychiatrist',
+        base: 'Gotham City',
+      },
+    ],
+    heroesCount: 1,
+    lastUpdatedOn: new Date(),
+  });
 
-  const lastId = () => superheroes.slice(-1)[0].id;
+  const lastId = () => state.superheroes.slice(-1)[0].id;
 
   const createSuperhero = (superhero) => {
     // update the current state and add the new superhero
@@ -22,40 +31,27 @@ function App() {
     //   base: 'Gotham City'
     // }
 
-    setSuperheroes((state) => [...superheroes, superhero]);
+    dispatch({ type: CREATE_SUPERHERO, superhero });
   };
 
   const deleteSuperhero = (id) => {
     // remove that superhero from the state
-    const updateSuperheroes = superheroes.filter((hero) => hero.id !== id);
 
-    setSuperheroes(updateSuperheroes);
+    dispatch({ type: DELETE_SUPERHERO, id });
   };
 
   const updateSuperheroes = (id, superhero) => {
-
-    console.log("Update Superheroes")
-    // finding the superhero with that id and replacing the properties
-
-    const updateSuperheroes = superheroes.map((hero) => {
-      // if it does not match the id, just return the same element
-      // if it does match => change the content
-
-      if (hero.id === id) {
-        return { ...superhero, hero };
-      }
-
-      return hero;
-    });
-
-    setSuperheroes(updateSuperheroes);
+    console.log(superhero);
+    dispatch({ type: UPDATE_SUPERHERO, id, superhero });
   };
 
-  const allSuperheroes = superheroes.map(({ id, name, occupation, base }) => (
-    <li key={id}>
-      Name: {name} Occupation: {occupation}, base: {base}
-    </li>
-  ));
+  const allSuperheroes = state.superheroes.map(
+    ({ id, name, occupation, base }) => (
+      <li key={id}>
+        Name: {name} Occupation: {occupation}, base: {base}
+      </li>
+    )
+  );
 
   return (
     <div className="App">
@@ -93,6 +89,9 @@ function App() {
           })
         }
       />
+
+      <div>Count: {state.heroesCount}</div>
+      <div>Last Updated On: {state.lastUpdatedOn.toString()}</div>
     </div>
   );
 }
